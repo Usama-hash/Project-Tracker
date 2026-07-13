@@ -150,6 +150,13 @@
     background:#fff;color:var(--navy);cursor:pointer;font-weight:600;white-space:nowrap;}
   .doc-help{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.5;}
   .doc-help code{background:#F0F2F5;padding:1px 5px;border-radius:4px;}
+
+  td.link-col{white-space:nowrap;}
+  .link-col-chip{display:inline-block;font-size:12px;font-weight:600;color:var(--navy);text-decoration:none;
+    background:#EEF1F6;border:1px solid var(--border);border-radius:14px;padding:3px 9px;margin:2px 4px 2px 0;
+    max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle;}
+  .link-col-chip:hover{background:#E1E7F0;text-decoration:underline;}
+  .link-col-empty{color:var(--muted);}
 </style>
 </head>
 <body>
@@ -576,6 +583,11 @@ function renderRow(d, openState){
   const isOpen = openState.open ? 'open' : '';
   const isEditing = openState.editing;
 
+  const docs = d.documents || [];
+  const linkCell = docs.length
+    ? docs.map(doc => `<a class="link-col-chip" href="${escAttr(doc.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation();" title="${escAttr(doc.label)}">&#128279; ${esc(doc.label)}</a>`).join('')
+    : '<span class="link-col-empty">—</span>';
+
   const mainRow = `
     <tr class="row-main" onclick="toggleRow('${d._key}')">
       <td class="sn">${d.sn}</td>
@@ -588,6 +600,7 @@ function renderRow(d, openState){
       <td class="owner">${esc(d.parked || (cat.key === 'live' ? '\u2014' : 'Un-Assigned'))}
         <span class="edit-icon" title="Edit" onclick="event.stopPropagation(); startEdit('${d._key}')">&#9998;</span>
       </td>
+      <td class="link-col">${linkCell}</td>
     </tr>`;
 
   let detailContent;
@@ -644,7 +657,7 @@ function renderRow(d, openState){
       </div>`;
   }
 
-  const detailRow = `<tr class="row-detail ${isOpen}" data-key="${d._key}" data-editing="${isEditing ? 'true' : 'false'}"><td colspan="5">${detailContent}</td></tr>`;
+  const detailRow = `<tr class="row-detail ${isOpen}" data-key="${d._key}" data-editing="${isEditing ? 'true' : 'false'}"><td colspan="6">${detailContent}</td></tr>`;
   return mainRow + detailRow;
 }
 
@@ -683,7 +696,8 @@ function render(preserveOnly){
 
     const cols = [
       {key:'sn', label:'#'}, {key:'project', label:'Project / Initiative'},
-      {key:'status', label:'Status'}, {key:'target', label:'Timeline'}, {key:'parked', label:'Owner'}
+      {key:'status', label:'Status'}, {key:'target', label:'Timeline'}, {key:'parked', label:'Owner'},
+      {key:'link', label:'Link', noSort:true}
     ];
     const st = sortState[tracker];
 
@@ -696,7 +710,10 @@ function render(preserveOnly){
       <div class="section-body">
         <table>
           <thead><tr>
-            ${cols.map(c => `<th class="${st && st.col===c.key ? 'sorted':''}" onclick="event.stopPropagation(); sortBy('${tracker}','${c.key}')">${c.label}${st && st.col===c.key ? `<span class="arrow">${st.dir===1?'&#9650;':'&#9660;'}</span>` : ''}</th>`).join('')}
+            ${cols.map(c => c.noSort
+              ? `<th>${c.label}</th>`
+              : `<th class="${st && st.col===c.key ? 'sorted':''}" onclick="event.stopPropagation(); sortBy('${tracker}','${c.key}')">${c.label}${st && st.col===c.key ? `<span class="arrow">${st.dir===1?'&#9650;':'&#9660;'}</span>` : ''}</th>`
+            ).join('')}
           </tr></thead>
           <tbody>
             ${sorted.map(d => renderRow(d, {open: openKeys.has(d._key), editing: editingKeys.has(d._key)})).join('')}
