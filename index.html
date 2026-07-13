@@ -136,6 +136,20 @@
   .owner-bar{flex:1;display:flex;height:20px;border-radius:4px;overflow:hidden;background:#EDEFF2;max-width:480px;}
   .owner-bar .seg{height:100%;}
   .owner-total{width:28px;flex-shrink:0;font-size:12.5px;color:var(--muted);font-weight:600;text-align:right;}
+
+  .doc-chip-list{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+  .doc-chip{display:inline-flex;align-items:center;gap:6px;background:#EEF1F6;border:1px solid var(--border);
+    border-radius:16px;padding:4px 10px;font-size:12.5px;}
+  .doc-chip a{color:var(--navy);text-decoration:none;font-weight:600;}
+  .doc-chip a:hover{text-decoration:underline;}
+  .doc-remove{cursor:pointer;color:var(--red);font-weight:700;padding-left:2px;}
+  .doc-empty{font-size:12.5px;color:var(--muted);font-style:italic;}
+  .doc-add-row{display:flex;gap:8px;margin-top:6px;}
+  .doc-add-row input{flex:1;padding:6px 9px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;}
+  .doc-add-row button{padding:6px 12px;font-size:12px;border-radius:6px;border:1px solid var(--navy);
+    background:#fff;color:var(--navy);cursor:pointer;font-weight:600;white-space:nowrap;}
+  .doc-help{font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.5;}
+  .doc-help code{background:#F0F2F5;padding:1px 5px;border-radius:4px;}
 </style>
 </head>
 <body>
@@ -159,6 +173,7 @@
   <button class="secondary" id="collapseAllBtn">Collapse All</button>
   <button id="addProjectBtn">+ Add Project</button>
   <button class="secondary" id="exportBtn">Export CSV</button>
+  <button class="secondary" id="publishBtn" title="Downloads a new index.html with all current edits/additions/documents baked in — re-upload it to GitHub to make changes visible to everyone">Publish Updated Site</button>
   <button class="secondary" id="resetBtn">Reset Edits</button>
 </div>
 
@@ -232,7 +247,7 @@
 <footer>Interactive tracker · edits are saved locally in this browser · click a row to expand details or edit</footer>
 
 <script>
-const RAW_DATA = [{"sn":1,"tracker":"Digital Projects","project":"Gold Loan at Customer Doorstep","description":null,"status":"Live with GoldFin","start":null,"target":"TBD","comments":"UAT completed; currently live with GoldFin.","action":null,"parked":"Kumail, Danyal"},{"sn":2,"tracker":"Digital Projects","project":"ASAAN Digital Account \u2013 Website","description":null,"status":"Delayed (Website Revamp)","start":null,"target":"30th July, 2026","comments":"Innovation team to align requirements with IT & Ops; full flow to be implemented in the Mobile App. Delayed due to website revamping.","action":null,"parked":"Hamza, Ismail"},{"sn":3,"tracker":"Digital Projects","project":"Instant Card Issuance","description":null,"status":"Staging in Progress","start":null,"target":"30th July, 2026","comments":"Waiting for UAT sign-off from Ops.","action":null,"parked":"Hamza, Ismail"},{"sn":4,"tracker":"Digital Projects","project":"RAAST P2P","description":null,"status":"UAT Completed / Moving to Staging","start":null,"target":"30th July, 2026","comments":"Shifting to RAAST staging; waiting on State Bank for MR testing. Optional cases (per State Bank team) are in development.","action":null,"parked":"Hamza, Usama"},{"sn":5,"tracker":"Digital Projects","project":"Corporate Portal & Home Remittance","description":null,"status":"Development Completed","start":null,"target":"TBD","comments":"UAT to be offered this month; moving to QA and InfoSec for testing.","action":null,"parked":"Ismail"},{"sn":6,"tracker":"Digital Projects","project":"Agent Interoperability","description":null,"status":"UAT in Progress","start":null,"target":"TBD","comments":"EasyPaisa and VRG UAT in process.","action":null,"parked":"Ismail"},{"sn":7,"tracker":"Digital Projects","project":"NADRA Facial","description":null,"status":"Awaiting VAPT Report","start":null,"target":"N/A","comments":"VAPT report expected from InfoSec next week; IT to upload required documentation to the NADRA portal for go-live approval. APIs received, pending configuration; connectivity with NADRA required.","action":"Follow up with NADRA","parked":"Usama"},{"sn":8,"tracker":"Digital Projects","project":"Nano Loan \u2013 Zenda","description":null,"status":"Live","start":null,"target":"22 Jun 2026","comments":null,"action":null,"parked":null},{"sn":9,"tracker":"Digital Projects","project":"Nano Loan \u2013 FinLeap","description":null,"status":"IBFT Integration in Progress","start":null,"target":"TBD","comments":"IBFT API shared to enable IBFT transfers; core functionality enabled for IBFT loan recording in CBS.","action":"Follow up with FinLeap on the integration front","parked":"Kumail, Danyal"},{"sn":10,"tracker":"Digital Projects","project":"Conversion of LMS (EWA / Advance Salary / Merchant Financing) into Banking Core","description":null,"status":"Disbursement Live with 2 Clients","start":null,"target":"23 Jun 2026","comments":"Repayment flow under development; expected completion by mid next week.","action":"Repayment flow development","parked":"Kumail, Danyal"},{"sn":11,"tracker":"Digital Projects","project":"Family Saving Account","description":null,"status":"Awaiting Stakeholder Response","start":null,"target":"N/A","comments":"Process flow shared with all stakeholders; BRD + UI/UX designs required.","action":"BRD and UI/UX designs to be provided","parked":"Kumail, Danyal"},{"sn":12,"tracker":"Digital Projects","project":"Salary Backed Lending (Provident Fund, Gratuity & VPS)","description":null,"status":"SBL live, PF and Gratuity FRD sent to stakeholders for assessment.","start":null,"target":"N/A","comments":null,"action":null,"parked":"Kumail, Danyal"},{"sn":13,"tracker":"Digital Projects","project":"Study Support Finance","description":null,"status":"Awaiting Stakeholder Response","start":null,"target":"N/A","comments":"Process flow shared with all stakeholders; BRD + UI/UX designs required.","action":"BRD and UI/UX designs to be provided","parked":"Kumail, Danyal"},{"sn":14,"tracker":"Digital Projects","project":"Buy Now Pay Later","description":null,"status":"Agreement Signing with AirLink","start":null,"target":"N/A","comments":"Technical discussion held with AirLink's IT team; complete flow discussed.","action":"BRD and UI/UX designs to be provided","parked":"Kumail, Danyal"},{"sn":15,"tracker":"Digital Projects","project":"App Revamp (UI/UX & Functionality)","description":"Overall app redesign covering user experience, interface, and functionality improvements","status":"Implementation in Progress","start":null,"target":"15th July 2026","comments":"Designs shared with IT; implementation in process, minor tweaks still pending.\nImpact: Directly reshapes navigation and interaction; improves usability and reduces friction; sets the tone for future digital features.","action":null,"parked":"Ismail"},{"sn":16,"tracker":"Digital Projects","project":"Islamic Banking App Designs","description":null,"status":"Designs to Be Finalized","start":null,"target":"N/A","comments":null,"action":null,"parked":"Ismail"},{"sn":17,"tracker":"Digital Projects","project":"CBA","description":null,"status":"Integration in Progress","start":null,"target":"N/A","comments":"CBA is integrating our APIs.","action":null,"parked":"Kumail, Danyal"},{"sn":18,"tracker":"Digital Projects","project":"Aitemad","description":null,"status":"Under Discussion","start":null,"target":"N/A","comments":null,"action":null,"parked":"Kumail, Danyal"},{"sn":19,"tracker":"Digital Projects","project":"Orio Tech","description":null,"status":"Live","start":null,"target":"30 Jun 2026","comments":null,"action":null,"parked":null},{"sn":20,"tracker":"Digital Projects","project":"Zarai Baramdat","description":null,"status":"Live","start":null,"target":"02 Jul 2026","comments":null,"action":null,"parked":null},{"sn":21,"tracker":"Digital Projects","project":"TPLI/Cashy Protect Mini App","description":null,"status":"BRD and userjourney sent to stakeholders, awaiting response","start":"7th July, 2026","target":null,"comments":null,"action":null,"parked":"Kumail/Danyal"},{"sn":22,"tracker":"Digital Projects","project":"Automatic Vendor Repayment Mechanism","description":null,"status":"Live","start":null,"target":"7th July, 2026","comments":null,"action":"Currently implemented with Digikhata. Will be implementing with our partners after successful run. ","parked":"Kumail/Danyal"},{"sn":23,"tracker":"Digital Projects","project":"Dastak","description":null,"status":"Live","start":null,"target":null,"comments":null,"action":null,"parked":null},{"sn":24,"tracker":"Digital Projects","project":"Ufone Integration","description":null,"status":"Testing & UAT","start":"27th April, 2026","target":null,"comments":"Ufone POC aligned; QA will test on their end. Once tested, we will perform UAT and share feedback.","action":null,"parked":"Usama  "},{"sn":25,"tracker":"Digital Projects","project":"1-Link Biller Addition","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":"Finalizing the billers to be added; once finalized, email to be sent to Imran for biller addition.","action":null,"parked":"Usama  "},{"sn":26,"tracker":"Digital Projects","project":"Kuickpay Biller Addition","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":"Finalizing the billers to be added; once finalized, email to be sent to Imran for biller addition.","action":null,"parked":"Usama  "},{"sn":27,"tracker":"Digital Projects","project":"New Onboarding Journey (Islamic Banking)","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":"BRD shared with Khurram for approval.","action":null,"parked":"Usama  "},{"sn":28,"tracker":"Digital Projects","project":"Bill Payment Revamp","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":" BRD floated today.","action":null,"parked":"Usama  "},{"sn":29,"tracker":"Digital Projects","project":"M-Tag Integration","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":" BRD floated today.","action":null,"parked":"Usama  "},{"sn":30,"tracker":"Digital Projects","project":"Jazz Loan API Integration","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":" BRD floated today.","action":null,"parked":"Usama  "},{"sn":31,"tracker":"Digital Projects","project":"Air Link Integration (BNPL PWA) ","description":"Interface integration for Air Link's Buy Now Pay Later PWA within the app","status":"Kickoff / Scoping","start":"05 Jul 2026","target":null,"comments":"Kickoff stage; scope being finalized with Air Link.\nImpact: Introduces a new in-app checkout financing journey; smooth integration is critical to avoid disrupting the existing purchase flow.","action":null,"parked":"Kumail/Danyal"},{"sn":32,"tracker":"Digital Projects","project":"TechWisely (Planckly) Marketplace Integration","description":"Embedding the Planckly marketplace mini-app within the ABHI app; commission-based partnership","status":"Agreement Under Review","start":"07 Jul 2026","target":null,"comments":"Draft agreement received. Tech session to be held next week for integration","action":null,"parked":"Ismail"},{"sn":33,"tracker":"Digital Projects","project":"Insurance Marketplace Integration (Adamjee, EFU, Webdoc)","description":"Integrating insurance providers into the app for in-app policy purchase/access","status":"Discussion / Agreement in Process","start":"TBD","target":"TBD","comments":"Initial discussion done on PWA integration; agreement in process.\nImpact: Adds a self-service journey; lower expected usage frequency limits day-to-day UX impact.","action":null,"parked":null},{"sn":34,"tracker":"Digital Projects","project":"Customer Complaints Framework (CRM Ticket Routing)","description":"Building a structured complaint intake and CRM-based ticket routing flow","status":"Planning \u2013 Stakeholder Alignment","start":"TBD","target":"TBD","comments":"Meeting with CX Head & Call Center Head scheduled to proceed with implementation.\nImpact: Affects user trust and satisfaction; faster, clearer resolution improves perceived reliability.","action":null,"parked":"Ismail"},{"sn":35,"tracker":"Digital Projects","project":"Firebase Database Events & Triggers Setup","description":"Setting up Firebase database and creating tracking events from scratch","status":"Planning","start":"August","target":"September","comments":"Planning stage; mapping document in progress.\nImpact: Invisible to users directly, but enables future personalization and UX improvements via behavior tracking.","action":null,"parked":"Ismail"},{"sn":36,"tracker":"Digital Projects","project":"Link Revenue Streams to Firebase","description":"Connecting revenue data sources into Firebase for digital revenue tracking","status":"Pending Dependency","start":"August","target":"September","comments":"Dependent on Firebase setup being completed first.\nImpact: Backend/analytics only; helps identify UX drop-off points tied to revenue.","action":null,"parked":"Ismail"},{"sn":37,"tracker":"Digital Projects","project":"Optimize Notifications","description":"Improve in-app/push notifications and performance","status":"In Progress \u2013 Journey Mapping","start":"05 Jul 2026","target":"TBD","comments":"Currently mapping notification triggers journey; to be scoped once Firebase events are live.\nImpact: Shapes user re-engagement and retention; poorly timed notifications hurt UX and drive uninstalls.","action":null,"parked":"Ismail"},{"sn":38,"tracker":"Digital Projects","project":"In-App Gamification/App Loading Game if App lags","description":"Coin/incentive-based gamification engine","status":"Planning","start":"TBD","target":"TBD","comments":"Planning stage.\nImpact: Incentivizes users to drive engagement and feature usage.","action":null,"parked":"Ismail"}];
+const RAW_DATA = [{"sn":1,"tracker":"Digital Projects","project":"Gold Loan at Customer Doorstep","description":null,"status":"Live with GoldFin","start":null,"target":"TBD","comments":"UAT completed; currently live with GoldFin.","action":null,"parked":"Kumail, Danyal"},{"sn":2,"tracker":"Digital Projects","project":"ASAAN Digital Account \u2013 Website","description":null,"status":"Delayed (Website Revamp)","start":null,"target":"30th July, 2026","comments":"Innovation team to align requirements with IT & Ops; full flow to be implemented in the Mobile App. Delayed due to website revamping.","action":null,"parked":"Hamza, Ismail"},{"sn":3,"tracker":"Digital Projects","project":"Instant Card Issuance","description":null,"status":"Staging in Progress","start":null,"target":"30th July, 2026","comments":"Waiting for UAT sign-off from Ops.","action":null,"parked":"Hamza, Ismail"},{"sn":4,"tracker":"Digital Projects","project":"RAAST P2P","description":null,"status":"UAT Completed / Moving to Staging","start":null,"target":"30th July, 2026","comments":"Shifting to RAAST staging; waiting on State Bank for MR testing. Optional cases (per State Bank team) are in development.","action":null,"parked":"Hamza, Usama"},{"sn":5,"tracker":"Digital Projects","project":"Corporate Portal & Home Remittance","description":null,"status":"Development Completed","start":null,"target":"TBD","comments":"UAT to be offered this month; moving to QA and InfoSec for testing.","action":null,"parked":"Ismail"},{"sn":6,"tracker":"Digital Projects","project":"Agent Interoperability","description":null,"status":"UAT in Progress","start":null,"target":"TBD","comments":"EasyPaisa and VRG UAT in process.","action":null,"parked":"Ismail"},{"sn":7,"tracker":"Digital Projects","project":"NADRA Facial","description":null,"status":"Awaiting VAPT Report","start":null,"target":"N/A","comments":"VAPT report expected from InfoSec next week; IT to upload required documentation to the NADRA portal for go-live approval. APIs received, pending configuration; connectivity with NADRA required.","action":"Follow up with NADRA","parked":"Usama"},{"sn":8,"tracker":"Digital Projects","project":"Nano Loan \u2013 Zenda","description":null,"status":"Live","start":null,"target":"22 Jun 2026","comments":null,"action":null,"parked":null},{"sn":9,"tracker":"Digital Projects","project":"Nano Loan \u2013 FinLeap","description":null,"status":"IBFT Integration in Progress","start":null,"target":"TBD","comments":"IBFT API shared to enable IBFT transfers; core functionality enabled for IBFT loan recording in CBS.","action":"Follow up with FinLeap on the integration front","parked":"Kumail, Danyal"},{"sn":10,"tracker":"Digital Projects","project":"Conversion of LMS (EWA / Advance Salary / Merchant Financing) into Banking Core","description":null,"status":"Disbursement Live with 2 Clients","start":null,"target":"23 Jun 2026","comments":"Repayment flow under development; expected completion by mid next week.","action":"Repayment flow development","parked":"Kumail, Danyal"},{"sn":11,"tracker":"Digital Projects","project":"Family Saving Account","description":null,"status":"Awaiting Stakeholder Response","start":null,"target":"N/A","comments":"Process flow shared with all stakeholders; BRD + UI/UX designs required.","action":"BRD and UI/UX designs to be provided","parked":"Kumail, Danyal"},{"sn":12,"tracker":"Digital Projects","project":"Salary Backed Lending (Provident Fund, Gratuity & VPS)","description":null,"status":"SBL live, PF and Gratuity FRD sent to stakeholders for assessment.","start":null,"target":"N/A","comments":null,"action":null,"parked":"Kumail, Danyal"},{"sn":13,"tracker":"Digital Projects","project":"Study Support Finance","description":null,"status":"Awaiting Stakeholder Response","start":null,"target":"N/A","comments":"Process flow shared with all stakeholders; BRD + UI/UX designs required.","action":"BRD and UI/UX designs to be provided","parked":"Kumail, Danyal"},{"sn":14,"tracker":"Digital Projects","project":"Buy Now Pay Later","description":null,"status":"Agreement Signing with AirLink","start":null,"target":"N/A","comments":"Technical discussion held with AirLink's IT team; complete flow discussed.","action":"BRD and UI/UX designs to be provided","parked":"Kumail, Danyal"},{"sn":15,"tracker":"Digital Projects","project":"App Revamp (UI/UX & Functionality)","description":"Overall app redesign covering user experience, interface, and functionality improvements","status":"Implementation in Progress","start":null,"target":"15th July 2026","comments":"Designs shared with IT; implementation in process, minor tweaks still pending.\nImpact: Directly reshapes navigation and interaction; improves usability and reduces friction; sets the tone for future digital features.","action":null,"parked":"Ismail"},{"sn":16,"tracker":"Digital Projects","project":"Islamic Banking App Designs","description":null,"status":"Designs to Be Finalized","start":null,"target":"N/A","comments":null,"action":null,"parked":"Ismail"},{"sn":17,"tracker":"Digital Projects","project":"CBA","description":null,"status":"Integration in Progress","start":null,"target":"N/A","comments":"CBA is integrating our APIs.","action":null,"parked":"Kumail, Danyal"},{"sn":18,"tracker":"Digital Projects","project":"Aitemad","description":null,"status":"Under Discussion","start":null,"target":"N/A","comments":null,"action":null,"parked":"Kumail, Danyal"},{"sn":19,"tracker":"Digital Projects","project":"Orio Tech","description":null,"status":"Live","start":null,"target":"30 Jun 2026","comments":null,"action":null,"parked":null},{"sn":20,"tracker":"Digital Projects","project":"Zarai Baramdat","description":null,"status":"Live","start":null,"target":"02 Jul 2026","comments":null,"action":null,"parked":null},{"sn":21,"tracker":"Digital Projects","project":"TPLI/Cashy Protect Mini App","description":null,"status":"BRD and userjourney sent to stakeholders, awaiting response","start":"7th July, 2026","target":null,"comments":null,"action":null,"parked":"Kumail/Danyal"},{"sn":22,"tracker":"Digital Projects","project":"Automatic Vendor Repayment Mechanism","description":null,"status":"Live","start":null,"target":"7th July, 2026","comments":null,"action":"Currently implemented with Digikhata. Will be implementing with our partners after successful run. ","parked":"Kumail/Danyal"},{"sn":23,"tracker":"Digital Projects","project":"Dastak","description":null,"status":"Live","start":null,"target":null,"comments":null,"action":null,"parked":null},{"sn":24,"tracker":"Digital Projects","project":"Ufone Integration","description":null,"status":"Testing & UAT","start":"27th April, 2026","target":null,"comments":"Ufone POC aligned; QA will test on their end. Once tested, we will perform UAT and share feedback.","action":null,"parked":"Usama  "},{"sn":25,"tracker":"Digital Projects","project":"1-Link Biller Addition","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":"Finalizing the billers to be added; once finalized, email to be sent to Imran for biller addition.","action":null,"parked":"Usama  "},{"sn":26,"tracker":"Digital Projects","project":"Kuickpay Biller Addition","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":"Finalizing the billers to be added; once finalized, email to be sent to Imran for biller addition.","action":null,"parked":"Usama  "},{"sn":27,"tracker":"Digital Projects","project":"New Onboarding Journey (Islamic Banking)","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":"BRD shared with Khurram for approval.","action":null,"parked":"Usama  "},{"sn":28,"tracker":"Digital Projects","project":"Bill Payment Revamp","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":" BRD floated today.","action":null,"parked":"Usama  "},{"sn":29,"tracker":"Digital Projects","project":"M-Tag Integration","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":" BRD floated today.","action":null,"parked":"Usama  "},{"sn":30,"tracker":"Digital Projects","project":"Jazz Loan API Integration","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":" BRD floated today.","action":null,"parked":"Usama  "},{"sn":31,"tracker":"Digital Projects","project":"Air Link Integration (BNPL PWA) ","description":"Interface integration for Air Link's Buy Now Pay Later PWA within the app","status":"Kickoff / Scoping","start":"05 Jul 2026","target":null,"comments":"Kickoff stage; scope being finalized with Air Link.\nImpact: Introduces a new in-app checkout financing journey; smooth integration is critical to avoid disrupting the existing purchase flow.","action":null,"parked":"Kumail/Danyal"},{"sn":32,"tracker":"Digital Projects","project":"TechWisely (Planckly) Marketplace Integration","description":"Embedding the Planckly marketplace mini-app within the ABHI app; commission-based partnership","status":"Agreement Under Review","start":"07 Jul 2026","target":null,"comments":"Draft agreement received. Tech session to be held next week for integration","action":null,"parked":"Ismail"},{"sn":33,"tracker":"Digital Projects","project":"Insurance Marketplace Integration (Adamjee, EFU, Webdoc)","description":"Integrating insurance providers into the app for in-app policy purchase/access","status":"Discussion / Agreement in Process","start":"TBD","target":"TBD","comments":"Initial discussion done on PWA integration; agreement in process.\nImpact: Adds a self-service journey; lower expected usage frequency limits day-to-day UX impact.","action":null,"parked":"Un-Assigned"},{"sn":34,"tracker":"Digital Projects","project":"Customer Complaints Framework (CRM Ticket Routing)","description":"Building a structured complaint intake and CRM-based ticket routing flow","status":"Planning \u2013 Stakeholder Alignment","start":"TBD","target":"TBD","comments":"Meeting with CX Head & Call Center Head scheduled to proceed with implementation.\nImpact: Affects user trust and satisfaction; faster, clearer resolution improves perceived reliability.","action":null,"parked":"Ismail"},{"sn":35,"tracker":"Digital Projects","project":"Firebase Database Events & Triggers Setup","description":"Setting up Firebase database and creating tracking events from scratch","status":"Planning","start":"August","target":"September","comments":"Planning stage; mapping document in progress.\nImpact: Invisible to users directly, but enables future personalization and UX improvements via behavior tracking.","action":null,"parked":"Ismail"},{"sn":36,"tracker":"Digital Projects","project":"Link Revenue Streams to Firebase","description":"Connecting revenue data sources into Firebase for digital revenue tracking","status":"Pending Dependency","start":"August","target":"September","comments":"Dependent on Firebase setup being completed first.\nImpact: Backend/analytics only; helps identify UX drop-off points tied to revenue.","action":null,"parked":"Ismail"},{"sn":37,"tracker":"Digital Projects","project":"Optimize Notifications","description":"Improve in-app/push notifications and performance","status":"In Progress \u2013 Journey Mapping","start":"05 Jul 2026","target":"TBD","comments":"Currently mapping notification triggers journey; to be scoped once Firebase events are live.\nImpact: Shapes user re-engagement and retention; poorly timed notifications hurt UX and drive uninstalls.","action":null,"parked":"Ismail"},{"sn":38,"tracker":"Digital Projects","project":"In-App Gamification/App Loading Game if App lags","description":"Coin/incentive-based gamification engine","status":"Planning","start":"TBD","target":"TBD","comments":"Planning stage.\nImpact: Incentivizes users to drive engagement and feature usage.","action":null,"parked":"Ismail"}];
 
 const STORAGE_KEY = 'progressTrackerEdits_v1';
 
@@ -288,6 +303,9 @@ function esc(s){
   if(s === null || s === undefined) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
+function escAttr(s){
+  return esc(s).replace(/"/g,'&quot;');
+}
 
 function renderStats(){
   const cats = {live:0, progress:0, planning:0, blocked:0};
@@ -307,7 +325,7 @@ function computeOwnerBreakdown(){
   DATA.forEach(d => {
     const cat = statusCategory(d.status).key;
     let names = (d.parked || '').split(/[,/]/).map(s => s.trim()).filter(Boolean);
-    if(names.length === 0) names = ['Unassigned'];
+    if(names.length === 0) names = ['Un-Assigned'];
     names.forEach(name => {
       if(!byOwner[name]) byOwner[name] = {live:0, progress:0, planning:0, blocked:0};
       byOwner[name][cat]++;
@@ -412,7 +430,30 @@ function toggleRow(key){
 
 function startEdit(key){
   const el = document.querySelector(`tr.row-detail[data-key="${CSS.escape(key)}"]`);
-  if(el){ el.classList.add('open'); el.dataset.editing = 'true'; render(); }
+  if(el){
+    el.classList.add('open'); el.dataset.editing = 'true';
+    const row = DATA.find(d => d._key === key);
+    if(row && !editDocBuffer[key]) editDocBuffer[key] = (row.documents || []).map(x => Object.assign({}, x));
+    render();
+  }
+}
+
+function addDocument(key){
+  const form = document.querySelector(`tr.row-detail[data-key="${CSS.escape(key)}"] .edit-form`);
+  if(!form) return;
+  const labelInput = form.querySelector('[data-doc-label]');
+  const urlInput = form.querySelector('[data-doc-url]');
+  const label = labelInput.value.trim();
+  const url = urlInput.value.trim();
+  if(!label || !url){ alert('Please provide both a label and a link/path for the document.'); return; }
+  if(!editDocBuffer[key]) editDocBuffer[key] = [];
+  editDocBuffer[key].push({label, url});
+  render(true);
+}
+
+function removeDocument(key, idx){
+  if(editDocBuffer[key]){ editDocBuffer[key].splice(idx, 1); }
+  render(true);
 }
 
 function saveRow(key){
@@ -425,10 +466,18 @@ function saveRow(key){
     const input = form.querySelector(`[data-field="${f}"]`);
     if(input) updated[f] = input.value;
   });
-  edits[row._key] = Object.assign({}, edits[row._key]||{}, updated);
+  updated.documents = (editDocBuffer[key] || row.documents || []).slice();
+
+  if(row._custom){
+    const cr = customRows.find(d => d._key === key);
+    if(cr) Object.assign(cr, updated);
+  } else {
+    edits[row._key] = Object.assign({}, edits[row._key]||{}, updated);
+    row._edited = true;
+  }
   saveStore();
   Object.assign(row, updated);
-  row._edited = true;
+  delete editDocBuffer[key];
   const el = document.querySelector(`tr.row-detail[data-key="${CSS.escape(key)}"]`);
   if(el){ el.dataset.editing = 'false'; el.classList.add('open'); }
   render(true);
@@ -437,11 +486,13 @@ function saveRow(key){
 function cancelEdit(key){
   const el = document.querySelector(`tr.row-detail[data-key="${CSS.escape(key)}"]`);
   if(el) el.dataset.editing = 'false';
+  delete editDocBuffer[key];
   render(true);
 }
 
 function revertRow(key){
   delete edits[key];
+  delete editDocBuffer[key];
   saveStore();
   const orig = RAW_DATA.find(d => (d.tracker+'::'+d.sn) === key);
   const row = DATA.find(d => d._key === key);
@@ -534,13 +585,17 @@ function renderRow(d, openState){
         <div class="progress-wrap"><div class="progress-bar ${cat.key}" style="width:${pct}%"></div></div>
       </td>
       <td class="dates">${esc(d.start||'—')}<br>→ ${esc(d.target||'TBD')}</td>
-      <td class="owner">${esc(d.parked||'—')}
+      <td class="owner">${esc(d.parked || (cat.key === 'live' ? '\u2014' : 'Un-Assigned'))}
         <span class="edit-icon" title="Edit" onclick="event.stopPropagation(); startEdit('${d._key}')">&#9998;</span>
       </td>
     </tr>`;
 
   let detailContent;
   if(isEditing){
+    const docs = editDocBuffer[d._key] || d.documents || [];
+    const docChips = docs.length
+      ? docs.map((doc, idx) => `<span class="doc-chip">📎 <a href="${escAttr(doc.url)}" target="_blank" rel="noopener">${esc(doc.label)}</a><span class="doc-remove" onclick="event.stopPropagation(); removeDocument('${d._key}', ${idx})">&times;</span></span>`).join('')
+      : '<span class="doc-empty">No documents yet</span>';
     detailContent = `
       <div class="edit-form">
         <div class="detail-grid">
@@ -551,6 +606,16 @@ function renderRow(d, openState){
           <div class="detail-field" style="grid-column:1/-1;"><label>Description</label><textarea data-field="description">${esc(d.description)}</textarea></div>
           <div class="detail-field" style="grid-column:1/-1;"><label>Comments / IT Notes</label><textarea data-field="comments">${esc(d.comments)}</textarea></div>
           <div class="detail-field" style="grid-column:1/-1;"><label>Action Required</label><textarea data-field="action">${esc(d.action)}</textarea></div>
+          <div class="detail-field" style="grid-column:1/-1;">
+            <label>Documents</label>
+            <div class="doc-chip-list">${docChips}</div>
+            <div class="doc-add-row">
+              <input type="text" placeholder="Label (e.g. VAPT Report)" data-doc-label>
+              <input type="text" placeholder="Link or repo path (e.g. docs/vapt-report.pdf)" data-doc-url>
+              <button type="button" onclick="event.stopPropagation(); addDocument('${d._key}')">+ Add</button>
+            </div>
+            <div class="doc-help">Paste a public link (Google Drive, SharePoint, etc.) or a path to a file uploaded into this same GitHub repo, e.g. <code>docs/filename.pdf</code> — so it opens for anyone viewing this page.</div>
+          </div>
         </div>
         <div class="row-actions">
           <button class="primary" onclick="event.stopPropagation(); saveRow('${d._key}')">Save</button>
@@ -560,11 +625,17 @@ function renderRow(d, openState){
         </div>
       </div>`;
   } else {
+    const docs = d.documents || [];
+    const docsBlock = docs.length ? `
+        <div class="detail-field" style="grid-column:1/-1;"><label>Documents</label>
+          <div class="doc-chip-list">${docs.map(doc => `<span class="doc-chip">📎 <a href="${escAttr(doc.url)}" target="_blank" rel="noopener">${esc(doc.label)}</a></span>`).join('')}</div>
+        </div>` : '';
     detailContent = `
       <div class="detail-grid">
         ${d.description ? `<div class="detail-field" style="grid-column:1/-1;"><label>Description</label><div class="val">${esc(d.description)}</div></div>` : ''}
         <div class="detail-field" style="grid-column:1/-1;"><label>Comments / IT Notes</label><div class="val">${esc(d.comments) || '—'}</div></div>
         <div class="detail-field" style="grid-column:1/-1;"><label>Action Required</label><div class="val">${esc(d.action) || '—'}</div></div>
+        ${docsBlock}
       </div>
       <div class="row-actions">
         <button onclick="event.stopPropagation(); startEdit('${d._key}')">Edit</button>
@@ -573,13 +644,14 @@ function renderRow(d, openState){
       </div>`;
   }
 
-  const detailRow = `<tr class="row-detail ${isOpen}" data-key="${d._key}"><td colspan="5">${detailContent}</td></tr>`;
+  const detailRow = `<tr class="row-detail ${isOpen}" data-key="${d._key}" data-editing="${isEditing ? 'true' : 'false'}"><td colspan="5">${detailContent}</td></tr>`;
   return mainRow + detailRow;
 }
 
 // track open/editing state across re-renders
 let openKeys = new Set();
 let editingKeys = new Set();
+let editDocBuffer = {}; // key -> array of {label, url} while a row is being edited
 
 function render(preserveOnly){
   // capture current open/editing state before wiping DOM
@@ -673,6 +745,27 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = 'progress_tracker_export.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('publishBtn').addEventListener('click', () => {
+  if(!confirm('This downloads a new index.html with all your current edits, added projects, and documents baked in as the new baseline.\n\nRe-upload this file to your GitHub repo (replacing index.html) to make everything visible to everyone.\n\nContinue?')) return;
+
+  const exportData = DATA.map(d => {
+    const clean = Object.assign({}, d);
+    delete clean._key; delete clean._edited; delete clean._custom;
+    return clean;
+  });
+  const newDataJson = JSON.stringify(exportData);
+
+  let html = '<!doctype html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const RAW_DATA = \[.*?\];/s, 'const RAW_DATA = ' + newDataJson.replace(/\$/g, '$$$$') + ';');
+
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'index.html';
   a.click();
   URL.revokeObjectURL(url);
 });
