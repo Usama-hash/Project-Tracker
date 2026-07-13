@@ -56,6 +56,15 @@
   thead th:hover{color:var(--navy);}
   thead th .arrow{font-size:10px;margin-left:3px;opacity:0.5;}
   thead th.sorted .arrow{opacity:1;color:var(--navy);}
+
+  tr.filter-row th.filter-cell{padding:6px 10px;background:#fff;border-bottom:2px solid var(--border);font-weight:400;
+    text-transform:none;letter-spacing:0;cursor:default;}
+  tr.filter-row th.filter-cell:hover{color:inherit;}
+  .filter-cell input{width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;
+    font-weight:400;color:var(--text);box-sizing:border-box;}
+  .filter-cell input::placeholder{color:#A8ADB5;}
+  .clear-col-filters{font-size:11px;color:var(--red);cursor:pointer;font-weight:600;white-space:nowrap;}
+  .clear-col-filters:hover{text-decoration:underline;}
   tbody tr.row-main{border-bottom:1px solid var(--border);cursor:pointer;}
   tbody tr.row-main:hover{background:#FAFBFC;}
   tbody td{padding:10px 12px;vertical-align:top;}
@@ -180,8 +189,6 @@
   <button class="secondary" id="collapseAllBtn">Collapse All</button>
   <button id="addProjectBtn">+ Add Project</button>
   <button class="secondary" id="exportBtn">Export CSV</button>
-  <button class="secondary" id="publishBtn" title="Downloads a new index.html with all current edits/additions/documents baked in — re-upload it to GitHub to make changes visible to everyone">Publish Updated Site</button>
-  <button class="secondary" id="resetBtn">Reset Edits</button>
 </div>
 
 <div class="stats" id="statsBar"></div>
@@ -396,6 +403,13 @@ function populateTrackerFilter(){
   });
 }
 
+let columnFilters = {}; // tracker -> {sn, project, status, target, parked}
+let lastFocusedFilter = null; // {tracker, col, selStart}
+
+function getColFilter(tracker, col){
+  return ((columnFilters[tracker] || {})[col] || '').trim().toLowerCase();
+}
+
 function matchesFilters(d){
   const q = document.getElementById('searchBox').value.trim().toLowerCase();
   const trackerF = document.getElementById('trackerFilter').value;
@@ -407,7 +421,26 @@ function matchesFilters(d){
       .map(x => (x||'').toString().toLowerCase()).join(' | ');
     if(!hay.includes(q)) return false;
   }
+
+  const cf = columnFilters[d.tracker];
+  if(cf){
+    if(cf.sn && !String(d.sn).includes(cf.sn.trim())) return false;
+    if(cf.project && !(d.project||'').toLowerCase().includes(cf.project.trim().toLowerCase())) return false;
+    if(cf.status && !(d.status||'').toLowerCase().includes(cf.status.trim().toLowerCase())) return false;
+    if(cf.target && !`${d.start||''} ${d.target||''}`.toLowerCase().includes(cf.target.trim().toLowerCase())) return false;
+    if(cf.parked){
+      const ownerText = d.parked || (statusCategory(d.status).key === 'live' ? '' : 'Un-Assigned');
+      if(!ownerText.toLowerCase().includes(cf.parked.trim().toLowerCase())) return false;
+    }
+  }
   return true;
+}
+
+function updateColumnFilter(tracker, col, value, inputEl){
+  if(!columnFilters[tracker]) columnFilters[tracker] = {};
+  columnFilters[tracker][col] = value;
+  lastFocusedFilter = {tracker, col, selStart: inputEl ? inputEl.selectionStart : null};
+  render(true);
 }
 
 function sortRows(rows, tracker){
@@ -701,6 +734,10 @@ function render(preserveOnly){
     ];
     const st = sortState[tracker];
 
+    const cf = columnFilters[tracker] || {};
+    const anyColFilterActive = Object.values(cf).some(v => v && v.trim());
+    const filterPlaceholders = {sn:'Filter #', project:'Filter project...', status:'Filter status...', target:'Filter dates...', parked:'Filter owner...'};
+
     section.innerHTML = `
       <div class="section-header" onclick="toggleSection('${tracker}')">
         <span class="chevron">&#9660;</span>
@@ -709,12 +746,23 @@ function render(preserveOnly){
       </div>
       <div class="section-body">
         <table>
-          <thead><tr>
+          <thead>
+          <tr>
             ${cols.map(c => c.noSort
               ? `<th>${c.label}</th>`
               : `<th class="${st && st.col===c.key ? 'sorted':''}" onclick="event.stopPropagation(); sortBy('${tracker}','${c.key}')">${c.label}${st && st.col===c.key ? `<span class="arrow">${st.dir===1?'&#9650;':'&#9660;'}</span>` : ''}</th>`
             ).join('')}
-          </tr></thead>
+          </tr>
+          <tr class="filter-row" onclick="event.stopPropagation();">
+            ${cols.map(c => {
+              if(c.key === 'link'){
+                return `<th class="filter-cell">${anyColFilterActive ? `<span class="clear-col-filters" onclick="clearColumnFilters('${tracker}')">Clear</span>` : ''}</th>`;
+              }
+              const val = cf[c.key] || '';
+              return `<th class="filter-cell"><input type="text" data-filter-key="${tracker}::${c.key}" placeholder="${filterPlaceholders[c.key]}" value="${escAttr(val)}" oninput="updateColumnFilter('${tracker}','${c.key}', this.value, this)"></th>`;
+            }).join('')}
+          </tr>
+          </thead>
           <tbody>
             ${sorted.map(d => renderRow(d, {open: openKeys.has(d._key), editing: editingKeys.has(d._key)})).join('')}
           </tbody>
@@ -727,6 +775,21 @@ function render(preserveOnly){
   if(!anyVisible){
     main.innerHTML = '<div class="no-results">No initiatives match your search/filters.</div>';
   }
+
+  if(lastFocusedFilter){
+    const {tracker, col, selStart} = lastFocusedFilter;
+    const el = document.querySelector(`[data-filter-key="${CSS.escape(tracker + '::' + col)}"]`);
+    if(el){
+      el.focus();
+      if(selStart !== null){ try{ el.setSelectionRange(selStart, selStart); }catch(e){} }
+    }
+    lastFocusedFilter = null;
+  }
+}
+
+function clearColumnFilters(tracker){
+  columnFilters[tracker] = {};
+  render(true);
 }
 
 function sortBy(tracker, col){
@@ -741,15 +804,6 @@ document.getElementById('trackerFilter').addEventListener('change', () => render
 document.getElementById('statusFilter').addEventListener('change', () => render(true));
 document.getElementById('expandAllBtn').addEventListener('click', () => { trackers.forEach(t => sectionCollapsed[t]=false); render(true); });
 document.getElementById('collapseAllBtn').addEventListener('click', () => { trackers.forEach(t => sectionCollapsed[t]=true); render(true); });
-document.getElementById('resetBtn').addEventListener('click', () => {
-  if(confirm('This will discard ALL local edits AND any projects you added, restoring the original tracker. Continue?')){
-    edits = {}; customRows = []; saveStore();
-    DATA = RAW_DATA.map(d => { const k=d.tracker+'::'+d.sn; const c=Object.assign({},d); c._key=k; c._edited=false; return c; });
-    trackers = [...new Set(DATA.map(d => d.tracker))];
-    populateTrackerFilter();
-    render();
-  }
-});
 document.getElementById('exportBtn').addEventListener('click', () => {
   const headers = ['SN','Tracker','Project / Initiative','Description','Current Status / Stage','Start Date','Target / Live Date','Comments / IT Notes','Action Required','Parked With'];
   const csvRows = [headers.join(',')];
@@ -762,27 +816,6 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url; a.download = 'progress_tracker_export.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-});
-
-document.getElementById('publishBtn').addEventListener('click', () => {
-  if(!confirm('This downloads a new index.html with all your current edits, added projects, and documents baked in as the new baseline.\n\nRe-upload this file to your GitHub repo (replacing index.html) to make everything visible to everyone.\n\nContinue?')) return;
-
-  const exportData = DATA.map(d => {
-    const clean = Object.assign({}, d);
-    delete clean._key; delete clean._edited; delete clean._custom;
-    return clean;
-  });
-  const newDataJson = JSON.stringify(exportData);
-
-  let html = '<!doctype html>\n' + document.documentElement.outerHTML;
-  html = html.replace(/const RAW_DATA = \[.*?\];/s, 'const RAW_DATA = ' + newDataJson.replace(/\$/g, '$$$$') + ';');
-
-  const blob = new Blob([html], {type:'text/html'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'index.html';
   a.click();
   URL.revokeObjectURL(url);
 });
