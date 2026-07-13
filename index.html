@@ -60,9 +60,9 @@
   tr.filter-row th.filter-cell{padding:6px 10px;background:#fff;border-bottom:2px solid var(--border);font-weight:400;
     text-transform:none;letter-spacing:0;cursor:default;}
   tr.filter-row th.filter-cell:hover{color:inherit;}
-  .filter-cell input{width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:5px;font-size:12px;
-    font-weight:400;color:var(--text);box-sizing:border-box;}
-  .filter-cell input::placeholder{color:#A8ADB5;}
+  .filter-cell select{width:100%;padding:5px 6px;border:1px solid var(--border);border-radius:5px;font-size:12px;
+    font-weight:400;color:var(--text);box-sizing:border-box;background:#fff;cursor:pointer;max-width:100%;}
+  .filter-cell select:invalid, .filter-cell select option[value=""]{color:#A8ADB5;}
   .clear-col-filters{font-size:11px;color:var(--red);cursor:pointer;font-weight:600;white-space:nowrap;}
   .clear-col-filters:hover{text-decoration:underline;}
   tbody tr.row-main{border-bottom:1px solid var(--border);cursor:pointer;}
@@ -404,10 +404,24 @@ function populateTrackerFilter(){
 }
 
 let columnFilters = {}; // tracker -> {sn, project, status, target, parked}
-let lastFocusedFilter = null; // {tracker, col, selStart}
 
-function getColFilter(tracker, col){
-  return ((columnFilters[tracker] || {})[col] || '').trim().toLowerCase();
+function ownerNamesFor(d){
+  const cat = statusCategory(d.status).key;
+  let names = (d.parked || '').split(/[,/]/).map(s => s.trim()).filter(Boolean);
+  if(names.length === 0) names = cat === 'live' ? [] : ['Un-Assigned'];
+  return names;
+}
+
+function distinctValues(rows, getter){
+  const set = new Set();
+  rows.forEach(d => { const v = getter(d); if(v !== null && v !== undefined && v !== '') set.add(v); });
+  return [...set].sort((a,b) => a.toString().localeCompare(b.toString(), undefined, {numeric:true}));
+}
+
+function distinctOwners(rows){
+  const set = new Set();
+  rows.forEach(d => ownerNamesFor(d).forEach(n => set.add(n)));
+  return [...set].sort((a,b) => a.localeCompare(b));
 }
 
 function matchesFilters(d){
@@ -424,22 +438,18 @@ function matchesFilters(d){
 
   const cf = columnFilters[d.tracker];
   if(cf){
-    if(cf.sn && !String(d.sn).includes(cf.sn.trim())) return false;
-    if(cf.project && !(d.project||'').toLowerCase().includes(cf.project.trim().toLowerCase())) return false;
-    if(cf.status && !(d.status||'').toLowerCase().includes(cf.status.trim().toLowerCase())) return false;
-    if(cf.target && !`${d.start||''} ${d.target||''}`.toLowerCase().includes(cf.target.trim().toLowerCase())) return false;
-    if(cf.parked){
-      const ownerText = d.parked || (statusCategory(d.status).key === 'live' ? '' : 'Un-Assigned');
-      if(!ownerText.toLowerCase().includes(cf.parked.trim().toLowerCase())) return false;
-    }
+    if(cf.sn && String(d.sn) !== cf.sn) return false;
+    if(cf.project && d.project !== cf.project) return false;
+    if(cf.status && (d.status || '\u2014') !== cf.status) return false;
+    if(cf.target && (d.target || 'TBD') !== cf.target) return false;
+    if(cf.parked && !ownerNamesFor(d).includes(cf.parked)) return false;
   }
   return true;
 }
 
-function updateColumnFilter(tracker, col, value, inputEl){
+function updateColumnFilter(tracker, col, value){
   if(!columnFilters[tracker]) columnFilters[tracker] = {};
   columnFilters[tracker][col] = value;
-  lastFocusedFilter = {tracker, col, selStart: inputEl ? inputEl.selectionStart : null};
   render(true);
 }
 
@@ -736,7 +746,13 @@ function render(preserveOnly){
 
     const cf = columnFilters[tracker] || {};
     const anyColFilterActive = Object.values(cf).some(v => v && v.trim());
-    const filterPlaceholders = {sn:'Filter #', project:'Filter project...', status:'Filter status...', target:'Filter dates...', parked:'Filter owner...'};
+    const filterOptionsFor = {
+      sn: distinctValues(rows, d => d.sn),
+      project: distinctValues(rows, d => d.project),
+      status: distinctValues(rows, d => d.status || '\u2014'),
+      target: distinctValues(rows, d => d.target || 'TBD'),
+      parked: distinctOwners(rows),
+    };
 
     section.innerHTML = `
       <div class="section-header" onclick="toggleSection('${tracker}')">
@@ -759,7 +775,11 @@ function render(preserveOnly){
                 return `<th class="filter-cell">${anyColFilterActive ? `<span class="clear-col-filters" onclick="clearColumnFilters('${tracker}')">Clear</span>` : ''}</th>`;
               }
               const val = cf[c.key] || '';
-              return `<th class="filter-cell"><input type="text" data-filter-key="${tracker}::${c.key}" placeholder="${filterPlaceholders[c.key]}" value="${escAttr(val)}" oninput="updateColumnFilter('${tracker}','${c.key}', this.value, this)"></th>`;
+              const opts = filterOptionsFor[c.key] || [];
+              return `<th class="filter-cell"><select data-filter-key="${tracker}::${c.key}" onchange="updateColumnFilter('${tracker}','${c.key}', this.value)">
+                <option value="">All</option>
+                ${opts.map(o => `<option value="${escAttr(o)}" ${val === String(o) ? 'selected' : ''}>${esc(o)}</option>`).join('')}
+              </select></th>`;
             }).join('')}
           </tr>
           </thead>
@@ -774,16 +794,6 @@ function render(preserveOnly){
 
   if(!anyVisible){
     main.innerHTML = '<div class="no-results">No initiatives match your search/filters.</div>';
-  }
-
-  if(lastFocusedFilter){
-    const {tracker, col, selStart} = lastFocusedFilter;
-    const el = document.querySelector(`[data-filter-key="${CSS.escape(tracker + '::' + col)}"]`);
-    if(el){
-      el.focus();
-      if(selStart !== null){ try{ el.setSelectionRange(selStart, selStart); }catch(e){} }
-    }
-    lastFocusedFilter = null;
   }
 }
 
