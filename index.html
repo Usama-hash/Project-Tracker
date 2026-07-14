@@ -39,6 +39,18 @@
 
   main{padding:6px 28px 40px 28px;}
 
+  @media (max-width: 640px){
+    header{padding:16px 14px;}
+    header h1{font-size:18px;}
+    .toolbar{padding:10px 14px;}
+    .stats{padding:10px 14px;}
+    main{padding:6px 14px 30px 14px;}
+    .dash-section{margin:0 14px 18px 14px;}
+    .dash-body{padding:14px 12px 16px 12px;}
+    .owner-name{width:88px;font-size:12px;}
+    .owner-total{width:22px;}
+  }
+
   .section{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:18px;overflow:hidden;}
   .section-header{display:flex;align-items:center;gap:10px;padding:14px 18px;cursor:pointer;background:#FAFBFC;
     border-bottom:1px solid var(--border);user-select:none;}
@@ -47,10 +59,10 @@
   .section.collapsed .chevron{transform:rotate(-90deg);}
   .section-header .title{font-weight:700;color:var(--navy);font-size:15px;flex:1;}
   .section-header .count{font-size:12px;color:#fff;background:var(--gold);padding:3px 10px;border-radius:12px;font-weight:600;}
-  .section-body{overflow:hidden;}
+  .section-body{overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch;}
   .section.collapsed .section-body{display:none;}
 
-  table{width:100%;border-collapse:collapse;font-size:13px;}
+  table{width:100%;min-width:640px;border-collapse:collapse;font-size:13px;}
   thead th{text-align:left;padding:10px 12px;background:#fff;border-bottom:2px solid var(--border);
     color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:0.4px;cursor:pointer;white-space:nowrap;}
   thead th:hover{color:var(--navy);}
@@ -100,6 +112,9 @@
   .row-actions button.primary{background:var(--navy);color:#fff;}
   .row-actions button.danger{border-color:var(--red);color:var(--red);}
   .edit-icon{opacity:0.5;font-size:13px;margin-left:6px;}
+
+  body.locked #addProjectBtn, body.locked #publishBtn, body.locked .edit-icon, body.locked .row-actions{display:none !important;}
+  #unlockBtn.unlocked{background:#1C8A5A;color:#fff;border-color:#1C8A5A;}
   .edit-icon:hover{opacity:1;}
   .edited-flag{font-size:10px;color:#fff;background:var(--gold);padding:1px 6px;border-radius:8px;font-weight:700;margin-left:8px;}
   .edited-flag.added-flag{background:var(--green);}
@@ -189,6 +204,8 @@
   <button class="secondary" id="collapseAllBtn">Collapse All</button>
   <button id="addProjectBtn">+ Add Project</button>
   <button class="secondary" id="exportBtn">Export CSV</button>
+  <button class="secondary" id="publishBtn" title="Downloads a new index.html with all current edits/additions/documents baked in — re-upload it to GitHub to make changes visible to everyone">Publish Updated Site</button>
+  <button class="secondary" id="unlockBtn" title="Unlock editing on this device">&#128274; Unlock Editing</button>
 </div>
 
 <div class="stats" id="statsBar"></div>
@@ -264,6 +281,8 @@
 const RAW_DATA = [{"sn":1,"tracker":"Digital Projects","project":"Gold Loan at Customer Doorstep","description":null,"status":"Live with GoldFin","start":null,"target":"TBD","comments":"UAT completed; currently live with GoldFin.","action":null,"parked":"Kumail, Danyal"},{"sn":2,"tracker":"Digital Projects","project":"ASAAN Digital Account \u2013 Website","description":null,"status":"Delayed (Website Revamp)","start":null,"target":"30th July, 2026","comments":"Innovation team to align requirements with IT & Ops; full flow to be implemented in the Mobile App. Delayed due to website revamping.","action":null,"parked":"Hamza, Ismail"},{"sn":3,"tracker":"Digital Projects","project":"Instant Card Issuance","description":null,"status":"Staging in Progress","start":null,"target":"30th July, 2026","comments":"Waiting for UAT sign-off from Ops.","action":null,"parked":"Hamza, Ismail"},{"sn":4,"tracker":"Digital Projects","project":"RAAST P2P","description":null,"status":"UAT Completed / Moving to Staging","start":null,"target":"30th July, 2026","comments":"Shifting to RAAST staging; waiting on State Bank for MR testing. Optional cases (per State Bank team) are in development.","action":null,"parked":"Hamza, Usama"},{"sn":5,"tracker":"Digital Projects","project":"Corporate Portal & Home Remittance","description":null,"status":"Development Completed","start":null,"target":"TBD","comments":"UAT to be offered this month; moving to QA and InfoSec for testing.","action":null,"parked":"Ismail"},{"sn":6,"tracker":"Digital Projects","project":"Agent Interoperability","description":null,"status":"UAT in Progress","start":null,"target":"TBD","comments":"EasyPaisa and VRG UAT in process.","action":null,"parked":"Ismail"},{"sn":7,"tracker":"Digital Projects","project":"NADRA Facial","description":null,"status":"Awaiting VAPT Report","start":null,"target":"N/A","comments":"VAPT report expected from InfoSec next week; IT to upload required documentation to the NADRA portal for go-live approval. APIs received, pending configuration; connectivity with NADRA required.","action":"Follow up with NADRA","parked":"Usama"},{"sn":8,"tracker":"Digital Projects","project":"Nano Loan \u2013 Zenda","description":null,"status":"Live","start":null,"target":"22 Jun 2026","comments":null,"action":null,"parked":null},{"sn":9,"tracker":"Digital Projects","project":"Nano Loan \u2013 FinLeap","description":null,"status":"IBFT Integration in Progress","start":null,"target":"TBD","comments":"IBFT API shared to enable IBFT transfers; core functionality enabled for IBFT loan recording in CBS.","action":"Follow up with FinLeap on the integration front","parked":"Kumail, Danyal"},{"sn":10,"tracker":"Digital Projects","project":"Conversion of LMS (EWA / Advance Salary / Merchant Financing) into Banking Core","description":null,"status":"Disbursement Live with 2 Clients","start":null,"target":"23 Jun 2026","comments":"Repayment flow under development; expected completion by mid next week.","action":"Repayment flow development","parked":"Kumail, Danyal"},{"sn":11,"tracker":"Digital Projects","project":"Family Saving Account","description":null,"status":"Awaiting Stakeholder Response","start":null,"target":"N/A","comments":"Process flow shared with all stakeholders; BRD + UI/UX designs required.","action":"BRD and UI/UX designs to be provided","parked":"Kumail, Danyal"},{"sn":12,"tracker":"Digital Projects","project":"Salary Backed Lending (Provident Fund, Gratuity & VPS)","description":null,"status":"SBL live, PF and Gratuity FRD sent to stakeholders for assessment.","start":null,"target":"N/A","comments":null,"action":null,"parked":"Kumail, Danyal"},{"sn":13,"tracker":"Digital Projects","project":"Study Support Finance","description":null,"status":"Awaiting Stakeholder Response","start":null,"target":"N/A","comments":"Process flow shared with all stakeholders; BRD + UI/UX designs required.","action":"BRD and UI/UX designs to be provided","parked":"Kumail, Danyal"},{"sn":14,"tracker":"Digital Projects","project":"Buy Now Pay Later","description":null,"status":"Agreement Signing with AirLink","start":null,"target":"N/A","comments":"Technical discussion held with AirLink's IT team; complete flow discussed.","action":"BRD and UI/UX designs to be provided","parked":"Kumail, Danyal"},{"sn":15,"tracker":"Digital Projects","project":"App Revamp (UI/UX & Functionality)","description":"Overall app redesign covering user experience, interface, and functionality improvements","status":"Implementation in Progress","start":null,"target":"15th July 2026","comments":"Designs shared with IT; implementation in process, minor tweaks still pending.\nImpact: Directly reshapes navigation and interaction; improves usability and reduces friction; sets the tone for future digital features.","action":null,"parked":"Ismail"},{"sn":16,"tracker":"Digital Projects","project":"Islamic Banking App Designs","description":null,"status":"Designs to Be Finalized","start":null,"target":"N/A","comments":null,"action":null,"parked":"Ismail"},{"sn":17,"tracker":"Digital Projects","project":"CBA","description":null,"status":"Integration in Progress","start":null,"target":"N/A","comments":"CBA is integrating our APIs.","action":null,"parked":"Kumail, Danyal"},{"sn":18,"tracker":"Digital Projects","project":"Aitemad","description":null,"status":"Under Discussion","start":null,"target":"N/A","comments":null,"action":null,"parked":"Kumail, Danyal"},{"sn":19,"tracker":"Digital Projects","project":"Orio Tech","description":null,"status":"Live","start":null,"target":"30 Jun 2026","comments":null,"action":null,"parked":null},{"sn":20,"tracker":"Digital Projects","project":"Zarai Baramdat","description":null,"status":"Live","start":null,"target":"02 Jul 2026","comments":null,"action":null,"parked":null},{"sn":21,"tracker":"Digital Projects","project":"TPLI/Cashy Protect Mini App","description":null,"status":"BRD and userjourney sent to stakeholders, awaiting response","start":"7th July, 2026","target":null,"comments":null,"action":null,"parked":"Kumail/Danyal"},{"sn":22,"tracker":"Digital Projects","project":"Automatic Vendor Repayment Mechanism","description":null,"status":"Live","start":null,"target":"7th July, 2026","comments":null,"action":"Currently implemented with Digikhata. Will be implementing with our partners after successful run. ","parked":"Kumail/Danyal"},{"sn":23,"tracker":"Digital Projects","project":"Dastak","description":null,"status":"Live","start":null,"target":null,"comments":null,"action":null,"parked":null},{"sn":24,"tracker":"Digital Projects","project":"Ufone Integration","description":null,"status":"Testing & UAT","start":"27th April, 2026","target":null,"comments":"Ufone POC aligned; QA will test on their end. Once tested, we will perform UAT and share feedback.","action":null,"parked":"Usama  "},{"sn":25,"tracker":"Digital Projects","project":"1-Link Biller Addition","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":"Finalizing the billers to be added; once finalized, email to be sent to Imran for biller addition.","action":null,"parked":"Usama  "},{"sn":26,"tracker":"Digital Projects","project":"Kuickpay Biller Addition","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":"Finalizing the billers to be added; once finalized, email to be sent to Imran for biller addition.","action":null,"parked":"Usama  "},{"sn":27,"tracker":"Digital Projects","project":"New Onboarding Journey (Islamic Banking)","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":"BRD shared with Khurram for approval.","action":null,"parked":"Usama  "},{"sn":28,"tracker":"Digital Projects","project":"Bill Payment Revamp","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":" BRD floated today.","action":null,"parked":"Usama  "},{"sn":29,"tracker":"Digital Projects","project":"M-Tag Integration","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":" BRD floated today.","action":null,"parked":"Usama  "},{"sn":30,"tracker":"Digital Projects","project":"Jazz Loan API Integration","description":null,"status":"Design & Documentation","start":null,"target":null,"comments":" BRD floated today.","action":null,"parked":"Usama  "},{"sn":31,"tracker":"Digital Projects","project":"Air Link Integration (BNPL PWA) ","description":"Interface integration for Air Link's Buy Now Pay Later PWA within the app","status":"Kickoff / Scoping","start":"05 Jul 2026","target":null,"comments":"Kickoff stage; scope being finalized with Air Link.\nImpact: Introduces a new in-app checkout financing journey; smooth integration is critical to avoid disrupting the existing purchase flow.","action":null,"parked":"Kumail/Danyal"},{"sn":32,"tracker":"Digital Projects","project":"TechWisely (Planckly) Marketplace Integration","description":"Embedding the Planckly marketplace mini-app within the ABHI app; commission-based partnership","status":"Agreement Under Review","start":"07 Jul 2026","target":null,"comments":"Draft agreement received. Tech session to be held next week for integration","action":null,"parked":"Ismail"},{"sn":33,"tracker":"Digital Projects","project":"Insurance Marketplace Integration (Adamjee, EFU, Webdoc)","description":"Integrating insurance providers into the app for in-app policy purchase/access","status":"Discussion / Agreement in Process","start":"TBD","target":"TBD","comments":"Initial discussion done on PWA integration; agreement in process.\nImpact: Adds a self-service journey; lower expected usage frequency limits day-to-day UX impact.","action":null,"parked":"Un-Assigned"},{"sn":34,"tracker":"Digital Projects","project":"Customer Complaints Framework (CRM Ticket Routing)","description":"Building a structured complaint intake and CRM-based ticket routing flow","status":"Planning \u2013 Stakeholder Alignment","start":"TBD","target":"TBD","comments":"Meeting with CX Head & Call Center Head scheduled to proceed with implementation.\nImpact: Affects user trust and satisfaction; faster, clearer resolution improves perceived reliability.","action":null,"parked":"Ismail"},{"sn":35,"tracker":"Digital Projects","project":"Firebase Database Events & Triggers Setup","description":"Setting up Firebase database and creating tracking events from scratch","status":"Planning","start":"August","target":"September","comments":"Planning stage; mapping document in progress.\nImpact: Invisible to users directly, but enables future personalization and UX improvements via behavior tracking.","action":null,"parked":"Ismail"},{"sn":36,"tracker":"Digital Projects","project":"Link Revenue Streams to Firebase","description":"Connecting revenue data sources into Firebase for digital revenue tracking","status":"Pending Dependency","start":"August","target":"September","comments":"Dependent on Firebase setup being completed first.\nImpact: Backend/analytics only; helps identify UX drop-off points tied to revenue.","action":null,"parked":"Ismail"},{"sn":37,"tracker":"Digital Projects","project":"Optimize Notifications","description":"Improve in-app/push notifications and performance","status":"In Progress \u2013 Journey Mapping","start":"05 Jul 2026","target":"TBD","comments":"Currently mapping notification triggers journey; to be scoped once Firebase events are live.\nImpact: Shapes user re-engagement and retention; poorly timed notifications hurt UX and drive uninstalls.","action":null,"parked":"Ismail"},{"sn":38,"tracker":"Digital Projects","project":"In-App Gamification/App Loading Game if App lags","description":"Coin/incentive-based gamification engine","status":"Planning","start":"TBD","target":"TBD","comments":"Planning stage.\nImpact: Incentivizes users to drive engagement and feature usage.","action":null,"parked":"Ismail"}];
 
 const STORAGE_KEY = 'progressTrackerEdits_v1';
+const EDIT_PASSWORD = 'abhi2026'; // change this to whatever you like — this is your edit password
+const EDIT_UNLOCK_KEY = 'trackerEditUnlocked';
 
 function statusCategory(status){
   if(!status) return {key:'planning', label:'Planning'};
@@ -830,6 +849,55 @@ document.getElementById('exportBtn').addEventListener('click', () => {
   URL.revokeObjectURL(url);
 });
 
+document.getElementById('publishBtn').addEventListener('click', () => {
+  if(!confirm('This downloads a new index.html with all your current edits, added projects, and documents baked in as the new baseline.\n\nRe-upload this file to your GitHub repo (replacing index.html) to make everything visible to everyone.\n\nContinue?')) return;
+
+  const exportData = DATA.map(d => {
+    const clean = Object.assign({}, d);
+    delete clean._key; delete clean._edited; delete clean._custom;
+    return clean;
+  });
+  const newDataJson = JSON.stringify(exportData);
+
+  let html = '<!doctype html>\n' + document.documentElement.outerHTML;
+  html = html.replace(/const RAW_DATA = \[.*?\];/s, 'const RAW_DATA = ' + newDataJson.replace(/\$/g, '$$$$') + ';');
+
+  const blob = new Blob([html], {type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'index.html';
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+function applyLockState(){
+  const unlocked = localStorage.getItem(EDIT_UNLOCK_KEY) === 'true';
+  document.body.classList.toggle('locked', !unlocked);
+  const btn = document.getElementById('unlockBtn');
+  if(unlocked){
+    btn.textContent = '\u{1F513} Editing Enabled (Click to Lock)';
+    btn.classList.add('unlocked');
+  } else {
+    btn.textContent = '\u{1F512} Unlock Editing';
+    btn.classList.remove('unlocked');
+  }
+}
+
+document.getElementById('unlockBtn').addEventListener('click', () => {
+  const unlocked = localStorage.getItem(EDIT_UNLOCK_KEY) === 'true';
+  if(unlocked){
+    localStorage.removeItem(EDIT_UNLOCK_KEY);
+  } else {
+    const pw = prompt('Enter the edit password to enable editing on this device:');
+    if(pw === null) return;
+    if(pw !== EDIT_PASSWORD){ alert('Incorrect password.'); return; }
+    localStorage.setItem(EDIT_UNLOCK_KEY, 'true');
+  }
+  applyLockState();
+  render(true);
+});
+
+applyLockState();
 populateTrackerFilter();
 render();
 </script>
